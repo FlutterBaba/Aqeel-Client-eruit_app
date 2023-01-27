@@ -51,7 +51,7 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-// Login Post Data
+// fatchLogin Data
 
   fatchLogin({required String userName, required String password}) async {
     isLoginLoadding = true;
