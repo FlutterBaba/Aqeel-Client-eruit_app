@@ -172,11 +172,14 @@ class AuthProvider with ChangeNotifier {
   }
 
   //  Change  password api fatch . in flutter//
-
+  bool isloadingchangePassword = false;
+  bool successfulChangePassword = false;
   fatchChangePassword({
     required String oldPassword,
     required String newPassword,
   }) async {
+    isloadingchangePassword = true;
+    notifyListeners();
     final response = await http.post(
       Uri.parse(
           "http://54.74.47.46:82/AccountMob/ChangeUserPassword?firmName=meir_eruit"),
@@ -190,22 +193,34 @@ class AuthProvider with ChangeNotifier {
       }),
     );
     if (response.statusCode == 200) {
+      isloadingchangePassword = false;
+      successfulChangePassword = true;
+      notifyListeners();
       print(newPassword);
       print(oldPassword);
       var value = json.decode(response.body);
       List<dynamic> error = value["Messages"];
       return Fluttertoast.showToast(msg: error[0]);
     } else if (response.statusCode == 400) {
+      isloadingchangePassword = false;
+      notifyListeners();
       var value = json.decode(response.body);
       List<dynamic> error = value["Messages"];
       return Fluttertoast.showToast(msg: error[0]);
     } else {
+      successfulChangePassword = false;
+      isloadingchangePassword = false;
+      notifyListeners();
       throw Exception('Failed to create album.');
     }
   }
 
 //Deactivate User :
+  bool isDeleteLoading = false;
+  bool successfulDelete = false;
   deleteUserAccount() async {
+    isDeleteLoading = true;
+    notifyListeners();
     final response = await http.post(
       Uri.parse("http://54.74.47.46:82/AccountMob/DeactiveUser"),
       headers: <String, String>{
@@ -214,14 +229,22 @@ class AuthProvider with ChangeNotifier {
       },
     );
     if (response.statusCode == 200) {
+      isDeleteLoading = false;
+      successfulDelete = true;
+      notifyListeners();
       var value = json.decode(response.body);
       List<dynamic> error = value["Messages"];
+
       return Fluttertoast.showToast(msg: error[0]);
     } else if (response.statusCode == 400) {
+      isDeleteLoading = false;
+      notifyListeners();
       var value = json.decode(response.body);
       List<dynamic> error = value["Messages"];
       return Fluttertoast.showToast(msg: error[0]);
     } else {
+      isDeleteLoading = false;
+      notifyListeners();
       throw Exception('Failed to create album.');
     }
   }
@@ -240,9 +263,8 @@ class AuthProvider with ChangeNotifier {
       var value = json.decode(response.body);
       if (value["RequestResponse"] == true) {
         profileModel = ProfileModel.fromJson(value["Data"]);
-        print(profileModel!.profilePic);
-        print(value);
         notifyListeners();
+        print(profileModel!.firstName);
       } else {
         List<dynamic> error = value["Messages"];
         return Fluttertoast.showToast(msg: error[0]);
@@ -256,40 +278,57 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  ///  update profile
+  File? image;
+  TextEditingController profilefirstName = TextEditingController();
+  TextEditingController profilelastName = TextEditingController();
+  TextEditingController profileuserName = TextEditingController();
+  TextEditingController profileemail = TextEditingController();
+  TextEditingController profilephone = TextEditingController();
 
-  updateProfile({
-    required String userName,
-    required File image,
-    required String firstName,
-    required String lastName,
-    required String email,
-    required String phone,
-  }) async {
-    var stream = http.ByteStream(DelegatingStream.typed(image.openRead()));
-    var length = await image.length();
+  ///  update profile
+  bool isprofileLoadoing = false;
+  updateProfile() async {
+    getUserDetails();
+    print(image);
+    isprofileLoadoing = true;
+    notifyListeners();
     Map<String, String> headers = {
       "Content-Type": "application/json; charset=utf-8",
       "Authorization": "Bearer $bearerToken",
     };
     var uri = Uri.parse("http://54.74.47.46:82/UserMob/UpdateUserMobProfile");
     var request = http.MultipartRequest("POST", uri);
-    var multipartFileSign = http.MultipartFile(
-      'ProfilePic',
-      stream,
-      length,
-      filename: basename(image.path),
-    );
-    request.files.add(multipartFileSign);
     request.headers.addAll(headers);
-    request.fields['UserName'] = userName.toString();
-    request.fields['FirstName'] = firstName.toString();
-    request.fields['LastName'] = lastName.toString();
-    request.fields['EmailId'] = email.toString();
-    request.fields['Phone'] = phone.toString();
-    request.fields['Language'] = 'English';
+
+    if (image == null) {
+      request.fields['UserName'] = profileuserName.text;
+      request.fields['FirstName'] = profilefirstName.text;
+      request.fields['LastName'] = profilelastName.text;
+      request.fields['EmailId'] = profileemail.text;
+      request.fields['Phone'] = profilephone.text;
+      request.fields['Language'] = 'English';
+    } else {
+      var stream = http.ByteStream(DelegatingStream.typed(image!.openRead()));
+      var length = await image!.length();
+      var multipartFileSign = http.MultipartFile(
+        'ProfilePic',
+        stream,
+        length,
+        filename: basename(image!.path),
+      );
+      request.files.add(multipartFileSign);
+      request.fields['UserName'] = profileuserName.text;
+      request.fields['FirstName'] = profilefirstName.text;
+      request.fields['LastName'] = profilelastName.text;
+      request.fields['EmailId'] = profileemail.text;
+      request.fields['Phone'] = profilephone.text;
+      request.fields['Language'] = 'English';
+    }
+
     var response = await request.send();
     if (response.statusCode == 200) {
+      isprofileLoadoing = false;
+      notifyListeners();
       String? errorResponse =
           await response.stream.transform(utf8.decoder).first;
       var value = json.decode(errorResponse);
@@ -297,12 +336,16 @@ class AuthProvider with ChangeNotifier {
       return Fluttertoast.showToast(msg: error[0]);
     }
     if (response.statusCode == 400) {
+      isprofileLoadoing = false;
+      notifyListeners();
       String? errorResponse =
           await response.stream.transform(utf8.decoder).first;
       var value = json.decode(errorResponse);
       List<dynamic> error = value["Messages"];
       return Fluttertoast.showToast(msg: error[0]);
     }
+    isprofileLoadoing = false;
+    notifyListeners();
   }
 
   //    done

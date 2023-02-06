@@ -15,11 +15,6 @@ class EditProfile extends StatefulWidget {
 }
 
 class _EditProfileState extends State<EditProfile> {
-  TextEditingController firstName = TextEditingController();
-  TextEditingController lastName = TextEditingController();
-  TextEditingController userName = TextEditingController();
-  TextEditingController email = TextEditingController();
-  TextEditingController phone = TextEditingController();
   File? imageFile;
 
   /// Get from gallery
@@ -37,14 +32,20 @@ class _EditProfileState extends State<EditProfile> {
   }
 
   @override
+  void initState() {
+    AuthProvider authProvider =
+        Provider.of<AuthProvider>(context, listen: false);
+    authProvider.profilefirstName.text = authProvider.profileModel!.firstName;
+    authProvider.profilelastName.text = authProvider.profileModel!.lastName;
+    authProvider.profileuserName.text = authProvider.profileModel!.userName;
+    authProvider.profileemail.text = authProvider.profileModel!.email;
+    authProvider.profilephone.text = authProvider.profileModel!.phone;
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     AuthProvider authProvider = Provider.of<AuthProvider>(context);
-    firstName.text = authProvider.profileModel!.firstName;
-    lastName.text = authProvider.profileModel!.lastName;
-    userName.text = authProvider.profileModel!.userName;
-    email.text = authProvider.profileModel!.email;
-    phone.text = authProvider.profileModel!.phone;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text("User profile"),
@@ -73,10 +74,12 @@ class _EditProfileState extends State<EditProfile> {
                       height: 100,
                       width: 100,
                       child: imageFile == null
-                          ? Image.network(
-                              authProvider.profileModel!.profilePic,
-                              fit: BoxFit.cover,
-                            )
+                          ? authProvider.profileModel!.profilePic.isEmpty
+                              ? Image.asset("assets/images/no-image.png")
+                              : Image.network(
+                                  authProvider.profileModel!.profilePic,
+                                  fit: BoxFit.cover,
+                                )
                           : Image.file(
                               imageFile!,
                               fit: BoxFit.cover,
@@ -105,23 +108,23 @@ class _EditProfileState extends State<EditProfile> {
               overflowSpacing: 20,
               children: [
                 TextField(
-                  controller: firstName,
+                  controller: authProvider.profilefirstName,
                   decoration: const InputDecoration(labelText: "First name"),
                 ),
                 TextField(
-                  controller: lastName,
+                  controller: authProvider.profilelastName,
                   decoration: const InputDecoration(labelText: "Last name"),
                 ),
                 TextField(
-                  controller: userName,
+                  controller: authProvider.profileuserName,
                   decoration: const InputDecoration(labelText: "User name"),
                 ),
                 TextField(
-                  controller: email,
+                  controller: authProvider.profileemail,
                   decoration: const InputDecoration(labelText: "Email"),
                 ),
                 TextField(
-                  controller: phone,
+                  controller: authProvider.profilephone,
                   decoration: const InputDecoration(labelText: "Phone"),
                 ),
                 Row(
@@ -131,16 +134,18 @@ class _EditProfileState extends State<EditProfile> {
                         height: 45,
                         child: ElevatedButton(
                           onPressed: () {
-                            authProvider.updateProfile(
-                              userName: userName.text,
-                              image: imageFile!,
-                              firstName: firstName.text,
-                              lastName: lastName.text,
-                              email: email.text,
-                              phone: phone.text,
-                            );
+                            if (imageFile != null) {
+                              setState(() {
+                                authProvider.image = imageFile;
+                              });
+                            }
+                            authProvider.updateProfile();
                           },
-                          child: const Text("Save"),
+                          child: authProvider.isprofileLoadoing
+                              ? const CircularProgressIndicator(
+                                  color: Colors.white,
+                                )
+                              : const Text("Save"),
                         ),
                       ),
                     ),

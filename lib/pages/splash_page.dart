@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import 'login_page.dart';
+import '../main.dart';
 
 class SplishScreen extends StatefulWidget {
   const SplishScreen({super.key});
@@ -18,7 +18,7 @@ class _SplishScreenState extends State<SplishScreen> {
       const Duration(seconds: 3),
       () => Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (BuildContext context) => const LoginPage(),
+          builder: (BuildContext context) => const TokenAccess(),
         ),
       ),
     );

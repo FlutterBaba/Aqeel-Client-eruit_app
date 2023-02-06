@@ -1,8 +1,8 @@
 import 'package:eruit_app/const.dart';
+import 'package:eruit_app/pages/about_us_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
-import '../yaqoob_test.dart';
 import 'contact_us_page.dart';
 
 class MoreMenuPage extends StatelessWidget {
@@ -40,7 +40,7 @@ class MoreMenuPage extends StatelessWidget {
                 contentPadding: EdgeInsets.zero,
                 onTap: () {
                   Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const Yaqoob(),
+                    builder: (context) => const AboutUsPage(),
                     // AboutUsPage(),
                   ));
                 },

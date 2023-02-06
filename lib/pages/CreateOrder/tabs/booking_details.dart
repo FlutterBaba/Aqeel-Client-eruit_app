@@ -36,7 +36,7 @@ class BookingDetails extends StatelessWidget {
                       width: 100,
                       decoration: BoxDecoration(
                         image: const DecorationImage(
-                          image: AssetImage("assets/images/profile.png"),
+                          image: AssetImage("assets/images/no-image.png"),
                         ),
                         borderRadius: BorderRadius.circular(10),
                       ),

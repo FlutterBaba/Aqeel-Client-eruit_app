@@ -1,9 +1,10 @@
 import 'package:eruit_app/const.dart';
-import 'package:eruit_app/pages/edit_profile.dart';
 import 'package:eruit_app/provider/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
+
+import 'edit_profile.dart';
 
 class UserProfile extends StatefulWidget {
   const UserProfile({super.key});
@@ -20,36 +21,41 @@ class _UserProfileState extends State<UserProfile> {
   bool newPassowrdobscureText = true;
 
   showDeleteAlert(BuildContext context) {
-    // set up the button
-    Widget okButton = TextButton(
-      child: const Text("OK"),
-      onPressed: () async {
-        await authProvider!.deleteUserAccount();
-      },
-    );
-    Widget cancelButton = TextButton(
-      child: const Text("Cancel"),
-      onPressed: () {
-        Navigator.pop(context);
-      },
-    );
-
-    // set up the AlertDialog
-    AlertDialog alert = AlertDialog(
-      title: const Text("Delete?"),
-      content: const Text("Are you sure you want ti delete this account?"),
-      actions: [
-        okButton,
-        cancelButton,
-      ],
-    );
-
     // show the dialog
     showDialog(
       barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
-        return alert;
+        return StatefulBuilder(
+          builder: (context, setState) {
+            AuthProvider auth = Provider.of<AuthProvider>(context);
+            return AlertDialog(
+              title: const Text("Delete?"),
+              content:
+                  const Text("Are you sure you want ti delete this account?"),
+              actions: [
+                auth.isDeleteLoading
+                    ? const CircularProgressIndicator()
+                    : TextButton(
+                        child: const Text("OK"),
+                        onPressed: () async {
+                          await auth.deleteUserAccount();
+                          if (auth.successfulDelete == true) {
+                            auth.successfulDelete = false;
+                            await auth.logOut(context);
+                          }
+                        },
+                      ),
+                TextButton(
+                  child: const Text("Cancel"),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            );
+          },
+        );
       },
     );
   }
@@ -71,6 +77,7 @@ class _UserProfileState extends State<UserProfile> {
                 builder: (context) {
                   return StatefulBuilder(
                     builder: (context, setState) {
+                      AuthProvider auth = Provider.of<AuthProvider>(context);
                       return SizedBox(
                         width: MediaQuery.of(context).size.width - 70,
                         child: SingleChildScrollView(
@@ -150,13 +157,24 @@ class _UserProfileState extends State<UserProfile> {
                                       width: double.infinity,
                                       child: ElevatedButton(
                                         onPressed: () async {
-                                          await authProvider!
-                                              .fatchChangePassword(
+                                          await auth.fatchChangePassword(
                                             oldPassword: password.text,
                                             newPassword: newPassword.text,
                                           );
+                                          if (auth.successfulChangePassword ==
+                                              true) {
+                                            password.clear();
+                                            newPassword.clear();
+                                            auth.successfulChangePassword =
+                                                false;
+                                            Navigator.of(context).pop();
+                                          }
                                         },
-                                        child: const Text("Submit"),
+                                        child: auth.isloadingchangePassword
+                                            ? const CircularProgressIndicator(
+                                                color: Colors.white,
+                                              )
+                                            : const Text("Submit"),
                                       ),
                                     )
                                   ],
@@ -173,17 +191,9 @@ class _UserProfileState extends State<UserProfile> {
             ));
   }
 
-  // @override
-  // void initState() {
-  //   AuthProvider auth = Provider.of<AuthProvider>(context, listen: false);
-  //   TODO: implement initState
-  //   super.initState();
-  // }
-
   @override
   Widget build(BuildContext context) {
     authProvider = Provider.of<AuthProvider>(context);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text("User profile"),
@@ -202,24 +212,25 @@ class _UserProfileState extends State<UserProfile> {
               children: [
                 Container(
                   decoration: BoxDecoration(
-                    border: Border.all(width: 2, color: kborderColor),
+                    border: Border.all(
+                      width: 2,
+                      color: kborderColor,
+                    ),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Container(
-                    margin: const EdgeInsets.all(6),
-                    height: 100,
-                    width: 100,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: NetworkImage(
-                          authProvider!.profileModel!.profilePic,
-                        ),
-                      ),
-                      borderRadius: BorderRadius.circular(10),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Container(
+                      margin: const EdgeInsets.all(6),
+                      height: 100,
+                      width: 100,
+                      child: authProvider!.profileModel!.profilePic.isEmpty
+                          ? Image.asset("assets/images/no-image.png")
+                          : Image.network(
+                              authProvider!.profileModel!.profilePic,
+                              fit: BoxFit.cover,
+                            ),
                     ),
-                    // child: Image.file(
-                    //   authProvider!.profileModel!.profilePic,
-                    // ),
                   ),
                 ),
                 const SizedBox(height: 10),
