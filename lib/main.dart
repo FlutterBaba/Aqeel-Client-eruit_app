@@ -1,4 +1,5 @@
-import 'package:eruit_app/pages/register_page.dart';
+import 'package:eruit_app/pages/bottom_bar.dart';
+import 'package:eruit_app/pages/login_page.dart';
 import 'package:eruit_app/provider/auth_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        // ChangeNotifierProvider(create: (_) => YaqoobProvider()),
       ],
       child: MaterialApp(
         title: 'Eruit-Mobile-App',
@@ -23,16 +25,14 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           iconTheme: const IconThemeData(color: ktextColor),
           cupertinoOverrideTheme: const NoDefaultCupertinoThemeData(
+            primaryColor: ktextColor,
+            textTheme: CupertinoTextThemeData(
               primaryColor: ktextColor,
-              textTheme: CupertinoTextThemeData(
-                primaryColor: ktextColor,
-              )),
+            ),
+          ),
           scaffoldBackgroundColor: Colors.white,
           textTheme: Theme.of(context).textTheme.apply(
-                bodyColor: ktextColor,
-                fontSizeDelta: 1.2,
-                fontFamily: "Poppins",
-              ),
+              bodyColor: ktextColor, fontSizeDelta: 1.2, fontFamily: "Poppins"),
           fontFamily: "Poppins",
           primaryColor: kpColor,
           elevatedButtonTheme: ElevatedButtonThemeData(
@@ -70,10 +70,38 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ),
-        home: const RegisterPage(),
+        home: const TokenAccess(),
+        // home: const Yaqoob(),
+        // home: YaqoobTest(),
+        // home: const ForgotPassword(),
         // home: const DemoApp(),
         // home: const SplishScreen(),
       ),
     );
+  }
+}
+
+class TokenAccess extends StatefulWidget {
+  const TokenAccess({super.key});
+
+  @override
+  State<TokenAccess> createState() => _TokenAccessState();
+}
+
+class _TokenAccessState extends State<TokenAccess> {
+  @override
+  void initState() {
+    AuthProvider authProvider =
+        Provider.of<AuthProvider>(context, listen: false);
+    authProvider.getToken();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    AuthProvider authProvider = Provider.of<AuthProvider>(context);
+    return authProvider.bearerToken == ""
+        ? const LoginPage()
+        : const BottomBar();
   }
 }

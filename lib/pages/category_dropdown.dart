@@ -46,9 +46,18 @@ class _EventFilterPopupState extends State<EventFilterPopup> {
       ),
       body: Column(
         children: [
-          const Padding(
-            padding: EdgeInsets.all(18.0),
-            child: DropDownWidget(title: ""),
+          Padding(
+            padding: const EdgeInsets.all(18.0),
+            child: DropDownWidget(
+              value: "Select",
+
+              title: "",
+              items: const [],
+              onTap: (value) {},
+              // onTap: (value){
+
+              // },
+            ),
           ),
           Padding(
             padding: const EdgeInsets.all(18.0),

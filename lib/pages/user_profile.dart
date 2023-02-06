@@ -1,7 +1,9 @@
 import 'package:eruit_app/const.dart';
 import 'package:eruit_app/pages/edit_profile.dart';
+import 'package:eruit_app/provider/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
 
 class UserProfile extends StatefulWidget {
   const UserProfile({super.key});
@@ -11,7 +13,47 @@ class UserProfile extends StatefulWidget {
 }
 
 class _UserProfileState extends State<UserProfile> {
-  bool obscureText = false;
+  TextEditingController password = TextEditingController();
+  TextEditingController newPassword = TextEditingController();
+  AuthProvider? authProvider;
+  bool passwordobscureText = true;
+  bool newPassowrdobscureText = true;
+
+  showDeleteAlert(BuildContext context) {
+    // set up the button
+    Widget okButton = TextButton(
+      child: const Text("OK"),
+      onPressed: () async {
+        await authProvider!.deleteUserAccount();
+      },
+    );
+    Widget cancelButton = TextButton(
+      child: const Text("Cancel"),
+      onPressed: () {
+        Navigator.pop(context);
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: const Text("Delete?"),
+      content: const Text("Are you sure you want ti delete this account?"),
+      actions: [
+        okButton,
+        cancelButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
   Future<void> _showMyDialog(BuildContext context) async {
     return showDialog(
         context: context,
@@ -27,117 +69,121 @@ class _UserProfileState extends State<UserProfile> {
               ),
               content: Builder(
                 builder: (context) {
-                  return SizedBox(
-                    width: MediaQuery.of(context).size.width - 70,
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            leading: SvgPicture.asset(
-                                "assets/images/design-image.svg"),
-                            trailing: IconButton(
-                              icon: const Icon(
-                                Icons.close,
-                                color: Colors.black,
+                  return StatefulBuilder(
+                    builder: (context, setState) {
+                      return SizedBox(
+                        width: MediaQuery.of(context).size.width - 70,
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              ListTile(
+                                contentPadding: EdgeInsets.zero,
+                                leading: SvgPicture.asset(
+                                    "assets/images/design-image.svg"),
+                                trailing: IconButton(
+                                  icon: const Icon(
+                                    Icons.close,
+                                    color: Colors.black,
+                                  ),
+                                  onPressed: () {
+                                    password.clear();
+                                    newPassword.clear();
+                                    Navigator.pop(context);
+                                  },
+                                ),
                               ),
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                            ),
-                          ),
-                          const Text(
-                            "Change Password",
-                            style: TextStyle(
-                              fontWeight: FontWeight.w500,
-                              fontSize: 20,
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 18, vertical: 20),
-                            child: Column(
-                              children: [
-                                TextField(
-                                  obscureText: obscureText,
-                                  decoration: InputDecoration(
-                                    labelText: "Password",
-                                    suffixIcon: IconButton(
-                                      icon: obscureText
-                                          ? SvgPicture.asset(
-                                              "assets/icons/eye-off.svg")
-                                          : SvgPicture.asset(
-                                              "assets/icons/eye.svg"),
-                                      onPressed: () {
-                                        setState(() {
-                                          obscureText = !obscureText;
-                                        });
-                                      },
-                                    ),
-                                  ),
+                              const Text(
+                                "Change Password",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 20,
                                 ),
-                                const SizedBox(height: 20),
-                                TextField(
-                                  obscureText: obscureText,
-                                  decoration: InputDecoration(
-                                    labelText: "New passwrod",
-                                    suffixIcon: IconButton(
-                                      icon: obscureText
-                                          ? SvgPicture.asset(
-                                              "assets/icons/eye-off.svg")
-                                          : SvgPicture.asset(
-                                              "assets/icons/eye.svg"),
-                                      onPressed: () {
-                                        setState(() {
-                                          obscureText = !obscureText;
-                                        });
-                                      },
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 18, vertical: 20),
+                                child: Column(
+                                  children: [
+                                    TextField(
+                                      controller: password,
+                                      obscureText: passwordobscureText,
+                                      decoration: InputDecoration(
+                                        labelText: "Password",
+                                        suffixIcon: IconButton(
+                                          icon: passwordobscureText
+                                              ? SvgPicture.asset(
+                                                  "assets/icons/eye-off.svg")
+                                              : SvgPicture.asset(
+                                                  "assets/icons/eye.svg"),
+                                          onPressed: () {
+                                            setState(() {
+                                              passwordobscureText =
+                                                  !passwordobscureText;
+                                            });
+                                          },
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ),
-                                const SizedBox(height: 20),
-                                TextField(
-                                  obscureText: obscureText,
-                                  decoration: InputDecoration(
-                                    labelText: "Confirm password",
-                                    suffixIcon: IconButton(
-                                      icon: obscureText
-                                          ? SvgPicture.asset(
-                                              "assets/icons/eye-off.svg")
-                                          : SvgPicture.asset(
-                                              "assets/icons/eye.svg"),
-                                      onPressed: () {
-                                        setState(() {
-                                          obscureText = !obscureText;
-                                        });
-                                      },
+                                    const SizedBox(height: 20),
+                                    TextField(
+                                      controller: newPassword,
+                                      obscureText: newPassowrdobscureText,
+                                      decoration: InputDecoration(
+                                        labelText: "New passwrod",
+                                        suffixIcon: IconButton(
+                                          icon: newPassowrdobscureText
+                                              ? SvgPicture.asset(
+                                                  "assets/icons/eye-off.svg")
+                                              : SvgPicture.asset(
+                                                  "assets/icons/eye.svg"),
+                                          onPressed: () {
+                                            setState(() {
+                                              newPassowrdobscureText =
+                                                  !newPassowrdobscureText;
+                                            });
+                                          },
+                                        ),
+                                      ),
                                     ),
-                                  ),
+                                    const SizedBox(height: 20),
+                                    SizedBox(
+                                      width: double.infinity,
+                                      child: ElevatedButton(
+                                        onPressed: () async {
+                                          await authProvider!
+                                              .fatchChangePassword(
+                                            oldPassword: password.text,
+                                            newPassword: newPassword.text,
+                                          );
+                                        },
+                                        child: const Text("Submit"),
+                                      ),
+                                    )
+                                  ],
                                 ),
-                                const SizedBox(height: 20),
-                                SizedBox(
-                                  width: double.infinity,
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                    child: const Text("Submit"),
-                                  ),
-                                )
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ),
+                        ),
+                      );
+                    },
                   );
                 },
               ),
             ));
   }
 
+  // @override
+  // void initState() {
+  //   AuthProvider auth = Provider.of<AuthProvider>(context, listen: false);
+  //   TODO: implement initState
+  //   super.initState();
+  // }
+
   @override
   Widget build(BuildContext context) {
+    authProvider = Provider.of<AuthProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("User profile"),
@@ -164,25 +210,30 @@ class _UserProfileState extends State<UserProfile> {
                     height: 100,
                     width: 100,
                     decoration: BoxDecoration(
-                      image: const DecorationImage(
-                        image: AssetImage("assets/images/profile.png"),
+                      image: DecorationImage(
+                        image: NetworkImage(
+                          authProvider!.profileModel!.profilePic,
+                        ),
                       ),
                       borderRadius: BorderRadius.circular(10),
                     ),
+                    // child: Image.file(
+                    //   authProvider!.profileModel!.profilePic,
+                    // ),
                   ),
                 ),
                 const SizedBox(height: 10),
-                const Text(
-                  "Yaqoob Developer",
-                  style: TextStyle(
+                Text(
+                  authProvider!.profileModel!.firstName,
+                  style: const TextStyle(
                     fontWeight: FontWeight.w500,
                     fontSize: 19,
                   ),
                 ),
                 const SizedBox(height: 6),
-                const Text(
-                  "yaqoobkafeel580@gmail.com",
-                  style: TextStyle(
+                Text(
+                  authProvider!.profileModel!.email,
+                  style: const TextStyle(
                     fontWeight: FontWeight.w400,
                     color: klightTextColor,
                     fontSize: 15,
@@ -219,10 +270,22 @@ class _UserProfileState extends State<UserProfile> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                const TextInputt(),
-                const TextInputt(),
-                const TextInputt(),
-                const TextInputt(),
+                TextInputt(
+                  labelText: "First name",
+                  text: authProvider!.profileModel!.firstName,
+                ),
+                TextInputt(
+                  labelText: "Last name",
+                  text: authProvider!.profileModel!.lastName,
+                ),
+                TextInputt(
+                  labelText: "User Name",
+                  text: authProvider!.profileModel!.userName,
+                ),
+                TextInputt(
+                  labelText: "Phone",
+                  text: authProvider!.profileModel!.phone,
+                ),
                 const SizedBox(height: 20),
                 const Text(
                   "Account Settings",
@@ -250,13 +313,17 @@ class _UserProfileState extends State<UserProfile> {
                           contentPadding: EdgeInsets.zero,
                           leading: SvgPicture.asset("assets/icons/trash.svg"),
                           title: const Text("Delete Account"),
-                          onTap: () {},
+                          onTap: () {
+                            showDeleteAlert(context);
+                          },
                         ),
                         ListTile(
                           contentPadding: EdgeInsets.zero,
                           leading: SvgPicture.asset("assets/icons/log-out.svg"),
                           title: const Text("Sign out"),
-                          onTap: () {},
+                          onTap: () {
+                            authProvider!.logOut(context);
+                          },
                         ),
                       ]).toList(),
                 ),
@@ -270,22 +337,28 @@ class _UserProfileState extends State<UserProfile> {
 }
 
 class TextInputt extends StatelessWidget {
-  const TextInputt({super.key});
+  final String labelText;
+  final String text;
+  const TextInputt({
+    super.key,
+    required this.labelText,
+    required this.text,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
-        Text("First name"),
-        SizedBox(height: 6),
+      children: [
+        Text(labelText.toString()),
+        const SizedBox(height: 6),
         Text(
-          "Elimelech",
-          style: TextStyle(
+          text.toString(),
+          style: const TextStyle(
             color: klightTextColor,
           ),
         ),
-        Divider(thickness: 1.6),
+        const Divider(thickness: 1.6),
       ],
     );
   }

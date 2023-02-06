@@ -1,5 +1,7 @@
 import 'package:eruit_app/const.dart';
+import 'package:eruit_app/provider/auth_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'tabs/summary_1_tab.dart';
 import 'tabs/summary_2_tab.dart';
@@ -7,9 +9,9 @@ import 'tabs/summary_3_tab.dart';
 
 class OrderSummary extends StatelessWidget {
   const OrderSummary({super.key});
-
   @override
   Widget build(BuildContext context) {
+    AuthProvider authProvider = Provider.of<AuthProvider>(context);
     return DefaultTabController(
       length: 3,
       child: Scaffold(
@@ -22,8 +24,14 @@ class OrderSummary extends StatelessWidget {
                 child: SizedBox(
                   height: 45,
                   child: ElevatedButton(
-                    onPressed: () {},
-                    child: const Text("Save"),
+                    onPressed: () {
+                      authProvider.saveOrderSummary();
+                    },
+                    child: authProvider.isordersummaryloding
+                        ? const CircularProgressIndicator(
+                            color: Colors.white,
+                          )
+                        : const Text("Save"),
                   ),
                 ),
               ),
@@ -74,8 +82,9 @@ class OrderSummary extends StatelessWidget {
                   color: const Color(0xffE4E6EF),
                 ),
                 child: TabBar(
-                  unselectedLabelStyle:
-                      const TextStyle(fontWeight: FontWeight.w500),
+                  unselectedLabelStyle: const TextStyle(
+                    fontWeight: FontWeight.w500,
+                  ),
                   unselectedLabelColor: ktextColor,
                   indicator: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),

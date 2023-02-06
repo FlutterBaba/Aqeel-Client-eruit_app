@@ -1,36 +1,40 @@
+import 'package:eruit_app/provider/auth_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class Summary1Tab extends StatelessWidget {
   const Summary1Tab({super.key});
 
   @override
   Widget build(BuildContext context) {
+    AuthProvider authProvider = Provider.of<AuthProvider>(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 18),
-      child: ListView(
-        physics: const BouncingScrollPhysics(),
-        children: const [
+      child: OverflowBar(
+        overflowSpacing: 20,
+        children: [
           TextField(
-            decoration: InputDecoration(labelText: "Add common"),
+            controller: authProvider.addCommon,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+              hintText: "Add common",
+            ),
           ),
-          SizedBox(height: 20),
           TextField(
-            decoration: InputDecoration(labelText: "Num Portions"),
+            controller: authProvider.numCommon,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(labelText: "Num Portions"),
           ),
-          SizedBox(height: 20),
-          TextField(
+          const TextField(
             decoration: InputDecoration(labelText: "Possible Portions"),
           ),
-          SizedBox(height: 20),
-          TextField(
+          const TextField(
             decoration: InputDecoration(labelText: "Addition 1"),
           ),
-          SizedBox(height: 20),
-          TextField(
+          const TextField(
             decoration: InputDecoration(labelText: "Last User"),
           ),
-          SizedBox(height: 20),
-          TextField(
+          const TextField(
             decoration: InputDecoration(labelText: "Text 1"),
           ),
         ],

@@ -1,12 +1,50 @@
+import 'dart:io';
+
 import 'package:eruit_app/const.dart';
+import 'package:eruit_app/provider/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
-class EditProfile extends StatelessWidget {
+class EditProfile extends StatefulWidget {
   const EditProfile({super.key});
 
   @override
+  State<EditProfile> createState() => _EditProfileState();
+}
+
+class _EditProfileState extends State<EditProfile> {
+  TextEditingController firstName = TextEditingController();
+  TextEditingController lastName = TextEditingController();
+  TextEditingController userName = TextEditingController();
+  TextEditingController email = TextEditingController();
+  TextEditingController phone = TextEditingController();
+  File? imageFile;
+
+  /// Get from gallery
+  _getFromGallery() async {
+    XFile? pickedFile = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1800,
+      maxHeight: 1800,
+    );
+    if (pickedFile != null) {
+      setState(() {
+        imageFile = File(pickedFile.path);
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    AuthProvider authProvider = Provider.of<AuthProvider>(context);
+    firstName.text = authProvider.profileModel!.firstName;
+    lastName.text = authProvider.profileModel!.lastName;
+    userName.text = authProvider.profileModel!.userName;
+    email.text = authProvider.profileModel!.email;
+    phone.text = authProvider.profileModel!.phone;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("User profile"),
@@ -28,20 +66,28 @@ class EditProfile extends StatelessWidget {
                     ),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Container(
-                    margin: const EdgeInsets.all(6),
-                    height: 100,
-                    width: 100,
-                    decoration: BoxDecoration(
-                      image: const DecorationImage(
-                        image: AssetImage("assets/images/profile.png"),
-                      ),
-                      borderRadius: BorderRadius.circular(10),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Container(
+                      margin: const EdgeInsets.all(6),
+                      height: 100,
+                      width: 100,
+                      child: imageFile == null
+                          ? Image.network(
+                              authProvider.profileModel!.profilePic,
+                              fit: BoxFit.cover,
+                            )
+                          : Image.file(
+                              imageFile!,
+                              fit: BoxFit.cover,
+                            ),
                     ),
                   ),
                 ),
                 GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    _getFromGallery();
+                  },
                   child: CircleAvatar(
                     radius: 14,
                     backgroundColor: kpColor,
@@ -55,37 +101,45 @@ class EditProfile extends StatelessWidget {
           const SizedBox(height: 20),
           Padding(
             padding: const EdgeInsets.all(12.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: OverflowBar(
+              overflowSpacing: 20,
               children: [
-                const SizedBox(height: 20),
-                const TextField(
-                  decoration: InputDecoration(labelText: "First name"),
+                TextField(
+                  controller: firstName,
+                  decoration: const InputDecoration(labelText: "First name"),
                 ),
-                const SizedBox(height: 20),
-                const TextField(
-                  decoration: InputDecoration(labelText: "Last name"),
+                TextField(
+                  controller: lastName,
+                  decoration: const InputDecoration(labelText: "Last name"),
                 ),
-                const SizedBox(height: 20),
-                const TextField(
-                  decoration: InputDecoration(labelText: "User name"),
+                TextField(
+                  controller: userName,
+                  decoration: const InputDecoration(labelText: "User name"),
                 ),
-                const SizedBox(height: 20),
-                const TextField(
-                  decoration: InputDecoration(labelText: "Email"),
+                TextField(
+                  controller: email,
+                  decoration: const InputDecoration(labelText: "Email"),
                 ),
-                const SizedBox(height: 20),
-                const TextField(
-                  decoration: InputDecoration(labelText: "Phone"),
+                TextField(
+                  controller: phone,
+                  decoration: const InputDecoration(labelText: "Phone"),
                 ),
-                const SizedBox(height: 30),
                 Row(
                   children: [
                     Expanded(
                       child: SizedBox(
                         height: 45,
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            authProvider.updateProfile(
+                              userName: userName.text,
+                              image: imageFile!,
+                              firstName: firstName.text,
+                              lastName: lastName.text,
+                              email: email.text,
+                              phone: phone.text,
+                            );
+                          },
                           child: const Text("Save"),
                         ),
                       ),

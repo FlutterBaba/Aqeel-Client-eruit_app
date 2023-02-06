@@ -1,10 +1,15 @@
+import 'package:eruit_app/provider/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
 
 class ForgotPassword extends StatelessWidget {
   const ForgotPassword({super.key});
+  static TextEditingController userName = TextEditingController();
+  static TextEditingController email = TextEditingController();
   @override
   Widget build(BuildContext context) {
+    AuthProvider authProvider = Provider.of<AuthProvider>(context);
     return Scaffold(
       appBar: AppBar(
         leading: const BackButton(),
@@ -47,12 +52,19 @@ class ForgotPassword extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 30),
             child: Column(
-              children: const [
-                TextField(decoration: InputDecoration(labelText: "Firm name")),
-                SizedBox(height: 20),
-                TextField(decoration: InputDecoration(labelText: "Username")),
-                SizedBox(height: 20),
-                TextField(decoration: InputDecoration(labelText: "Email")),
+              children: [
+                const TextField(
+                    decoration: InputDecoration(labelText: "Firm name")),
+                const SizedBox(height: 20),
+                TextField(
+                  decoration: const InputDecoration(labelText: "Username"),
+                  controller: userName,
+                ),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: email,
+                  decoration: const InputDecoration(labelText: "Email"),
+                ),
               ],
             ),
           ),
@@ -60,7 +72,12 @@ class ForgotPassword extends StatelessWidget {
             padding: const EdgeInsets.all(30),
             child: ElevatedButton(
               child: const Text("Send"),
-              onPressed: () {},
+              onPressed: () {
+                authProvider.fatchForgetPassword(
+                  userName: userName.text,
+                  emailId: email.text,
+                );
+              },
             ),
           ),
         ],

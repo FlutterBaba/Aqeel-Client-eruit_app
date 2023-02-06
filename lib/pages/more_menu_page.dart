@@ -2,7 +2,7 @@ import 'package:eruit_app/const.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
-import 'about_us_page.dart';
+import '../yaqoob_test.dart';
 import 'contact_us_page.dart';
 
 class MoreMenuPage extends StatelessWidget {
@@ -40,7 +40,8 @@ class MoreMenuPage extends StatelessWidget {
                 contentPadding: EdgeInsets.zero,
                 onTap: () {
                   Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const AboutUsPage(),
+                    builder: (context) => const Yaqoob(),
+                    // AboutUsPage(),
                   ));
                 },
                 leading: SvgPicture.asset(
@@ -57,7 +58,8 @@ class MoreMenuPage extends StatelessWidget {
               ),
               child: ListTile(
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 contentPadding: EdgeInsets.zero,
                 onTap: () {},
                 leading: SvgPicture.asset("assets/icons/shield.svg"),

@@ -115,16 +115,17 @@ class _LoginPageState extends State<LoginPage> {
             child: ElevatedButton(
               onPressed: () {
                 authProvider.fatchLogin(
+                  firmName: firmName.text,
                   password: passoword.text,
                   userName: userName.text,
+                  context: context,
                 );
-                // Navigator.of(context).push(
-                //   MaterialPageRoute(
-                //     builder: (context) => const BottomBar(),
-                //   ),
-                // );
               },
-              child: const Text("Login"),
+              child: authProvider.isLoginLoadding
+                  ? const CircularProgressIndicator(
+                      color: Colors.white,
+                    )
+                  : const Text("Login"),
             ),
           ),
           const SizedBox(height: 40),

@@ -156,10 +156,46 @@ class _CalendarFilterState extends State<CalendarFilter> {
                   ],
                 ),
                 const SizedBox(height: 20),
-                const DropDownWidget(title: "Month"),
-                const DropDownWidget(title: "Hall"),
-                const DropDownWidget(title: "Order status"),
-                const DropDownWidget(title: "Agent"),
+                DropDownWidget(
+                  value: "Select",
+                  title: "Month",
+                  items: const [],
+                  onTap: (value) {
+                    // setState(() {
+                    //   dropdownvalue = value!;
+                    // });
+                  },
+                ),
+                DropDownWidget(
+                  value: "Select",
+                  title: "Hall",
+                  items: const [],
+                  onTap: (value) {
+                    // setState(() {
+                    //   dropdownvalue = value!;
+                    // });
+                  },
+                ),
+                DropDownWidget(
+                  value: "Select",
+                  title: "Order status",
+                  items: const [],
+                  onTap: (value) {
+                    // setState(() {
+                    //   dropdownvalue = value!;
+                    // });
+                  },
+                ),
+                DropDownWidget(
+                  value: "Select",
+                  title: "Agent",
+                  items: const [],
+                  onTap: (value) {
+                    // setState(() {
+                    //   dropdownvalue = value!;
+                    // });
+                  },
+                ),
               ],
             ),
           )

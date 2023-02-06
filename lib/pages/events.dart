@@ -1,14 +1,89 @@
+import 'package:eruit_app/provider/auth_provider.dart';
 import 'package:eruit_app/widgets/drop_down_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import 'events_Item.dart';
 import 'events_details.dart';
 
-class Events extends StatelessWidget {
+class Events extends StatefulWidget {
   const Events({super.key});
+  @override
+  State<Events> createState() => _EventsState();
+}
+
+class _EventsState extends State<Events> {
+  TextEditingController dateInputController = TextEditingController();
+  TimeOfDay toTime = const TimeOfDay(hour: 8, minute: 30);
+  TimeOfDay fromTime = const TimeOfDay(hour: 12, minute: 30);
+  TextEditingController hebdate = TextEditingController();
+  TextEditingController dayEvent = TextEditingController();
+
+  static List<String> hallList = [
+    "Hall",
+    "הארמון",
+    "האחוזה",
+    "גן",
+    "הארמון+ האחוזה",
+    "הארמון+ הגן",
+    "האחוזה+ הגן",
+    "הארמון+ האחוזה+ הגן",
+    "לימוזינהדגכדגכ",
+    "סנס",
+    "חדר טעימות",
+    "חיצוני",
+    'פנטהאוז 2020',
+    "כיגכטכגטכרט",
+    "צילום והפקות",
+    "33",
+    "חוף דקל",
+    'רדשעכדגשהדגע',
+    "פליי",
+    "אופציה לאירוע",
+    "אהוד בנא",
+    'rahul test',
+    "גגגגגגגגגגגגגג",
+    "bloomingdales",
+    "macys",
+    "23423macys",
+    "דשא",
+    "סנטיאגו הול",
+    "אולם מרכזי",
+    "אולם מיכל",
+    "zobi",
+  ];
+
+  static List<String> menuList = [
+    "Menu",
+    "פנטהאוז",
+    "תפריט 2015",
+    "הדגמה",
+    "דוגמא",
+    "גוטניק",
+    "פנטהאוז",
+    "תפריט מיכל",
+    'מפרט צילום והפקות',
+    "אלמה הפקות",
+    "תפריט נסיוני",
+    "תפריט חדש",
+    "תפריט ראשי",
+  ];
+
+  static List<String> serverList = [
+    "Server",
+    "אמריקן סרוויס",
+    "שולחנות עגולים",
+    "הגשה לשולחנות",
+    "tessst",
+    'no server',
+    'VIP',
+    "בופה",
+  ];
 
   @override
   Widget build(BuildContext context) {
+    AuthProvider authProvider = Provider.of<AuthProvider>(context);
     return Scaffold(
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(15),
@@ -78,58 +153,122 @@ class Events extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 20),
-            const DropDownWidget(title: ""),
+            DropDownWidget(
+              title: "",
+              value: hallList[authProvider.hall],
+              items: hallList,
+              onTap: (value) {
+                setState(() {
+                  authProvider.hall = hallList.indexOf(value!);
+                });
+              },
+            ),
             const SizedBox(height: 20),
-            const DropDownWidget(title: ""),
+            DropDownWidget(
+              title: "",
+              value: menuList[authProvider.menu],
+              items: menuList,
+              onTap: (value) {
+                setState(() {
+                  authProvider.menu = menuList.indexOf(value!);
+                });
+              },
+            ),
             const SizedBox(height: 20),
-            const DropDownWidget(title: ""),
+            DropDownWidget(
+              title: "",
+              value: serverList[authProvider.server],
+              items: serverList,
+              onTap: (value) {
+                setState(() {
+                  authProvider.server = serverList.indexOf(value!);
+                });
+              },
+            ),
             const SizedBox(height: 20),
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'From Date',
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.date_range),
-                  onPressed: () {},
-                ),
+            TextFormField(
+              decoration: const InputDecoration(
+                hintText: 'Date',
+                suffixIcon: Icon(Icons.date_range),
               ),
+              controller: dateInputController,
+              readOnly: true,
+              onTap: () async {
+                DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime(1950),
+                    lastDate: DateTime(2050));
+                if (pickedDate != null) {
+                  dateInputController.text =
+                      DateFormat('dd MMMM yyyy').format(pickedDate);
+                }
+                await authProvider.getHedateAndDayEventByDate(
+                    date: dateInputController.text);
+
+                hebdate.text = authProvider.hebdate!;
+                dayEvent.text = authProvider.dayEvent!;
+              },
             ),
             const SizedBox(height: 20),
             Row(
               children: [
                 Expanded(
-                  child: TextField(
+                  child: TextFormField(
                     decoration: InputDecoration(
-                      labelText: 'From Time',
-                      suffixIcon: IconButton(
-                        icon: const Icon(Icons.timer_sharp),
-                        onPressed: () {},
-                      ),
+                      hintText: toTime.format(context).toString(),
+                      suffixIcon: const Icon(Icons.timer_sharp),
                     ),
+                    // controller:
+                    readOnly: true,
+                    onTap: () {
+                      showTimePicker(
+                        helpText: "TO TIME",
+                        context: context,
+                        initialTime: TimeOfDay.now(),
+                      ).then((value) {
+                        setState(() {
+                          toTime = value!;
+                        });
+                      });
+                    },
                   ),
                 ),
                 const SizedBox(width: 20),
                 Expanded(
-                  child: TextField(
+                  child: TextFormField(
                     decoration: InputDecoration(
-                      labelText: 'From Time',
-                      suffixIcon: IconButton(
-                        icon: const Icon(Icons.timer_sharp),
-                        onPressed: () {},
-                      ),
+                      hintText: fromTime.format(context).toString(),
+                      suffixIcon: const Icon(Icons.timer_sharp),
                     ),
+                    // controller:
+                    readOnly: true,
+                    onTap: () {
+                      showTimePicker(
+                        helpText: "From TIME",
+                        context: context,
+                        initialTime: TimeOfDay.now(),
+                      ).then((value) {
+                        setState(() {
+                          fromTime = value!;
+                        });
+                      });
+                    },
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 20),
-            const TextField(
-              decoration: InputDecoration(
+            TextField(
+              controller: hebdate,
+              decoration: const InputDecoration(
                 labelText: 'Hebdate',
               ),
             ),
             const SizedBox(height: 20),
-            const TextField(
-              decoration: InputDecoration(labelText: 'Day Event'),
+            TextField(
+              controller: dayEvent,
+              decoration: const InputDecoration(labelText: 'Day Event'),
             ),
           ],
         ),

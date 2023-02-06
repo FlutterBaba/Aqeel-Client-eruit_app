@@ -66,9 +66,14 @@ class EventsItem extends StatelessWidget {
               ],
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: DropDownWidget(title: ""),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: DropDownWidget(
+              value: "Select",
+              title: "",
+              items: const [],
+              onTap: (value) {},
+            ),
           ),
           const ListTile(
             leading: Text(

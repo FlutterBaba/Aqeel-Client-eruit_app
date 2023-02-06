@@ -122,6 +122,7 @@ class RegisterPage extends StatelessWidget {
                   decoration: const InputDecoration(labelText: "firmName"),
                 ),
                 TextField(
+                  obscureText: true,
                   controller: password,
                   decoration: const InputDecoration(labelText: "password"),
                 ),

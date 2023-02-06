@@ -1,8 +1,8 @@
-import 'dart:math';
-
 import 'package:eruit_app/const.dart';
-import 'package:eruit_app/data/data.dart';
+import 'package:eruit_app/extentions.dart';
 import 'package:flutter/material.dart';
+
+import '../models/order_model.dart';
 
 class ProductRowItem extends StatelessWidget {
   final OrderModel orderModel;
@@ -15,7 +15,6 @@ class ProductRowItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       top: false,
-      // bottom: false,
       minimum: const EdgeInsets.all(15),
       child: Container(
         padding: const EdgeInsets.all(3),
@@ -33,7 +32,7 @@ class ProductRowItem extends StatelessWidget {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(10),
                   child: Image.asset(
-                    orderModel.image,
+                    "assets/images/image1.png",
                     height: 76,
                     width: 76,
                     fit: BoxFit.cover,
@@ -77,31 +76,33 @@ class ProductRowItem extends StatelessWidget {
                   children: <Widget>[
                     Row(
                       children: [
-                        const Text(
-                          "Elimelech Meir",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
+                        Expanded(
+                          child: Text(
+                            orderModel.name,
+                            style: const TextStyle(
+                              overflow: TextOverflow.ellipsis,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                         const SizedBox(width: 5),
                         Icon(
                           Icons.circle_outlined,
-                          size: 17,
-                          color: Colors.primaries[
-                              Random().nextInt(Colors.primaries.length)],
+                          size: 20,
+                          color: orderModel.colorHexa.toColor(),
                         )
                       ],
                     ),
                     const SizedBox(height: 5),
                     Text(
-                      '#Order No - ${orderModel.orderNo}',
+                      '#Order No -${orderModel.order}',
                       style: const TextStyle(
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    Text(
-                      orderModel.time,
-                      style: const TextStyle(
+                    const Text(
+                      "orderModel.fromDate,",
+                      style: TextStyle(
                         fontWeight: FontWeight.w500,
                         color: klightTextColor,
                       ),

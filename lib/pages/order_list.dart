@@ -1,19 +1,19 @@
 import 'package:eruit_app/const.dart';
-import 'package:eruit_app/data/data.dart';
 import 'package:eruit_app/pages/order_List_page_filter_popup.dart';
+import 'package:eruit_app/provider/auth_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-
+import 'package:provider/provider.dart';
+import '../models/order_model.dart';
 import '../test_ui/product_list.dart';
 import 'CreateOrder/create_order.dart';
-import 'order_details_page.dart';
 
 class OrderListPage extends StatelessWidget {
   const OrderListPage({super.key});
-
   @override
   Widget build(BuildContext context) {
+    AuthProvider authProvider = Provider.of<AuthProvider>(context);
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         elevation: 0,
@@ -49,9 +49,11 @@ class OrderListPage extends StatelessWidget {
               actions: [
                 IconButton(
                   onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) =>
-                            const OrderListPageFilterPopup()));
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const OrderListPageFilterPopup(),
+                      ),
+                    );
                   },
                   icon: SvgPicture.asset("assets/icons/filter.svg"),
                 )
@@ -63,28 +65,28 @@ class OrderListPage extends StatelessWidget {
               child: OrderDropDown(),
             ),
             Expanded(
-              child: ListView.builder(
-                padding: EdgeInsets.zero,
-                physics: const BouncingScrollPhysics(),
-                // shrinkWrap: true,
-                // primary: true,
-                itemCount: orderListOfData.length,
-                itemBuilder: (context, index) {
-                  OrderModel orderModel = orderListOfData[index];
-                  return CupertinoButton(
-                    padding: EdgeInsets.zero,
-                    onPressed: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) =>
-                            OrderDetailsPage(orderModel: orderModel),
-                      ));
-                    },
-                    child: ProductRowItem(
-                      orderModel: orderModel,
+              child: authProvider.orderslist.isEmpty
+                  ? const Text("No Order")
+                  : ListView.builder(
+                      padding: EdgeInsets.zero,
+                      physics: const BouncingScrollPhysics(),
+                      itemCount: authProvider.orderslist.length,
+                      itemBuilder: (context, index) {
+                        OrderModel orderModel = authProvider.orderslist[index];
+                        return CupertinoButton(
+                          padding: EdgeInsets.zero,
+                          onPressed: () {
+                            // Navigator.of(context).push(MaterialPageRoute(
+                            //   builder: (context) =>
+                            //       OrderDetailsPage(orderModel: orderModel),
+                            // ));
+                          },
+                          child: ProductRowItem(
+                            orderModel: orderModel,
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
             )
           ],
         ),

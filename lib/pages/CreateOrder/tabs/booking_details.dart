@@ -1,28 +1,17 @@
+import 'package:eruit_app/provider/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
 
 import '../../../const.dart';
-import '../../event_list_page.dart';
 
 class BookingDetails extends StatelessWidget {
   const BookingDetails({super.key});
 
   @override
   Widget build(BuildContext context) {
+    AuthProvider authProvider = Provider.of<AuthProvider>(context);
     return Scaffold(
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(18),
-        color: const Color(0xffF9FAFB),
-        width: double.infinity,
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => const EventListPage(),
-            ));
-          },
-          child: const Text("Events"),
-        ),
-      ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 18),
         child: ListView(
@@ -65,30 +54,41 @@ class BookingDetails extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            ListView(
-              shrinkWrap: true,
-              primary: false,
-              children: const [
+            OverflowBar(
+              overflowSpacing: 20,
+              children: [
                 TextField(
-                  decoration: InputDecoration(labelText: "Name"),
+                  controller: authProvider.name,
+                  decoration: const InputDecoration(labelText: "Name"),
                 ),
-                SizedBox(height: 20),
                 TextField(
-                  decoration: InputDecoration(labelText: "Address 1"),
+                  controller: authProvider.address1,
+                  decoration: const InputDecoration(labelText: "Address 1"),
                 ),
-                SizedBox(height: 20),
                 TextField(
-                  decoration: InputDecoration(labelText: "Telephone 1"),
+                  controller: authProvider.telephone1,
+                  decoration: const InputDecoration(labelText: "Telephone 1"),
                 ),
-                SizedBox(height: 20),
                 TextField(
-                  decoration: InputDecoration(labelText: "Email"),
+                  controller: authProvider.email,
+                  decoration: const InputDecoration(labelText: "Email"),
                 ),
-                SizedBox(height: 20),
                 TextField(
-                  decoration: InputDecoration(labelText: "Phone"),
+                  controller: authProvider.phone,
+                  decoration: const InputDecoration(labelText: "Phone"),
                 ),
-                SizedBox(height: 20),
+                TextField(
+                  controller: authProvider.contact,
+                  decoration: const InputDecoration(labelText: "Contact"),
+                ),
+                TextField(
+                  controller: authProvider.telephone2,
+                  decoration: const InputDecoration(labelText: "Telephone 2"),
+                ),
+                TextField(
+                  controller: authProvider.email1,
+                  decoration: const InputDecoration(labelText: "Email 1"),
+                ),
               ],
             ),
           ],
