@@ -1,7 +1,8 @@
 import 'package:eruit_app/const.dart';
-import 'package:eruit_app/pages/about_us_page.dart';
+import 'package:eruit_app/provider/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
 
 import 'contact_us_page.dart';
 
@@ -10,6 +11,7 @@ class MoreMenuPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    AuthProvider authProvider = Provider.of<AuthProvider>(context);
     return Scaffold(
       appBar: AppBar(
         leading: const BackButton(),
@@ -39,10 +41,13 @@ class MoreMenuPage extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10)),
                 contentPadding: EdgeInsets.zero,
                 onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const AboutUsPage(),
-                    // AboutUsPage(),
-                  ));
+                  print("heelo");
+                  // print("object");
+                  // authProvider.getUserApi();
+                  // Navigator.of(context).push(MaterialPageRoute(
+                  //   builder: (context) => const AboutUsPage(),
+                  //   // AboutUsPage(),
+                  // ));
                 },
                 leading: SvgPicture.asset(
                   "assets/icons/users.svg",

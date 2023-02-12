@@ -258,6 +258,7 @@ class _UserProfileState extends State<UserProfile> {
                     size: 20,
                   ),
                   onPressed: () {
+                    print("Edit");
                     Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) => const EditProfile(),
                     ));

@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:eruit_app/models/create_user.dart';
-import 'package:eruit_app/models/get_order_status_model.dart';
 import 'package:eruit_app/models/profile_model.dart';
 import 'package:eruit_app/pages/bottom_bar.dart';
 import 'package:eruit_app/pages/login_page.dart';
@@ -11,7 +10,6 @@ import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
 import 'package:async/async.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../models/order_model.dart';
 
 class AuthProvider with ChangeNotifier {
   bool isSignUpLoadding = false;
@@ -26,8 +24,6 @@ class AuthProvider with ChangeNotifier {
     bearerToken = token;
     notifyListeners();
     await getUserDetails(); //
-    await getOrderStatusList();
-    await getOrders();
   }
 
   logOut(context) async {
@@ -159,7 +155,7 @@ class AuthProvider with ChangeNotifier {
       return Fluttertoast.showToast(msg: error[0]);
       // return CreateUserModel.fromJson(jsonDecode(response.body));
     } else if (response.statusCode == 400) {
-      isLoginLoadding = false;
+      isForgotLoadding = false;
       notifyListeners();
       var value = json.decode(response.body);
       List<dynamic> error = value["Messages"];
@@ -348,147 +344,6 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  //    done
-
-  TextEditingController name = TextEditingController();
-  TextEditingController address1 = TextEditingController();
-  TextEditingController telephone1 = TextEditingController();
-  TextEditingController email = TextEditingController();
-  TextEditingController phone = TextEditingController();
-  TextEditingController contact = TextEditingController();
-  TextEditingController telephone2 = TextEditingController();
-  TextEditingController email1 = TextEditingController();
-  int terms = 0;
-  String orderStatus = "Quotation";
-  int agent = 0;
-  TextEditingController eventLocation = TextEditingController();
-  int event = 0;
-  int hall = 0;
-  int menu = 0;
-  int server = 0;
-  yaqoobFunction() async {
-    final response = await http.post(
-      Uri.parse("http://54.74.47.46:82/OrderMob/SaveOrderData"),
-      headers: <String, String>{
-        "Content-Type": "application/json; charset=utf-8",
-        "Authorization": "Bearer $bearerToken",
-      },
-      body: jsonEncode(<dynamic, dynamic>{
-        "status": orderStatus == "Order Status" ? "" : orderStatus,
-        "event": event,
-        "EventLocation": eventLocation.text,
-        "agent": agent,
-        "date_order": "2022-01-06T00:00:00",
-        "last_update": "2023-01-31T00:00:00",
-        "telephon1": telephone2.text,
-        "contact": contact.text,
-        "email1": email.text,
-        // "IsRemind": false,
-        // "HallName": "Yaqoob Hall",
-        // "LastUser": "ChonAlax225",
-        // "add_common": 0.00,
-        // "num_portions": 0,
-        // "possible_postions": 0,
-        // "addition_1": 0.00,
-        // "cost_1": 0.00,
-        // "min_postions": 0,
-        // "practical": 0,
-        // "duty_hist": 0.00,
-        // "discount_2": 0.00,
-        // "date_finish": "2023-01-13T00:00:00",
-        // "sum_total": 0.0,
-        // "NextOrder": 123454,
-        // "PreviousOrder": 123452,
-        // "colorHexa": "#8db3e2",
-        "Booking": {
-          "name": name.text,
-          "address_1": address1.text,
-          "telefon_1": telephone1.text,
-          "email_adress": email.text,
-          "terms": terms,
-          "num": phone.text,
-          "picture": ""
-        },
-        "Events": [
-          {
-            "date_event": "2021-11-10T00:00:00",
-            "from_date": "2021-11-10T00:00:00",
-            "to_date": "2021-11-10T00:00:00",
-            "from_time": "08:00:00",
-            "to_time": "09:00:00",
-            "HallName": "Yaqoob Hall",
-            "MenuName": "תפריט השף חיים כהן",
-            "ServerName": "בוצע",
-            "hall": 4,
-            "menu": 3,
-            "server": 1,
-            "Commission": 10.00,
-            "editEventFlag": true
-          }
-        ]
-      }),
-    );
-    if (response.statusCode == 200) {
-      var value = json.decode(response.body);
-      print(value["Data"]);
-      List<dynamic> error = value["Messages"];
-      return Fluttertoast.showToast(msg: error[0]);
-    } else if (response.statusCode == 400) {
-      var value = json.decode(response.body);
-      List<dynamic> error = value["Messages"];
-      return Fluttertoast.showToast(msg: error[0]);
-    }
-  }
-
-//GetHedate And Day Event By Date
-
-  String? hebdate;
-  String? dayEvent;
-
-  getHedateAndDayEventByDate({required date}) async {
-    final response = await http.get(
-      Uri.parse(
-        "http://54.74.47.46:82/OrderMob/GetHebdateAndDayEvent?FromDate=$date",
-      ),
-      headers: <String, String>{
-        "Content-Type": "application/json; charset=utf-8",
-        "Authorization": "Bearer $bearerToken",
-      },
-    );
-    if (response.statusCode == 200) {
-      var value = json.decode(response.body);
-      hebdate = value["Data"]["Hebdate"];
-      dayEvent = value["Data"]["dayEvent"];
-      notifyListeners();
-    }
-  }
-
-  ///   	•	Get Order Status list
-
-  List<GetOrderStatusModel> statuslist = [];
-
-  getOrderStatusList() async {
-    List<GetOrderStatusModel> newList = [];
-    final response = await http.get(
-      Uri.parse("http://54.74.47.46:82/QuickSelect/GetOrderStatus"),
-      headers: <String, String>{
-        "Content-Type": "application/json; charset=utf-8",
-        "Authorization": "Bearer $bearerToken",
-      },
-    );
-    if (response.statusCode == 200) {
-      var value = json.decode(response.body);
-      List data = value["Data"];
-      for (var element in data) {
-        GetOrderStatusModel getOrderStatusModel =
-            GetOrderStatusModel.fromJson(element);
-        newList.add(getOrderStatusModel);
-      }
-      statuslist = newList;
-      notifyListeners();
-    }
-  }
-
   ///  ------------------------------------------------------------------------------------------------------------------------
   // Save Order Summary Details :
   bool isordersummaryloding = false;
@@ -537,33 +392,6 @@ class AuthProvider with ChangeNotifier {
       print(value);
     } else if (response.statusCode == 400) {
       isordersummaryloding = true;
-      notifyListeners();
-    }
-  }
-
-  ///  get Order Details
-  ///
-  List<OrderModel> orderslist = [];
-  getOrders() async {
-    List<OrderModel> newList = [];
-    final response = await http.post(
-      Uri.parse("http://54.74.47.46:82/Order/GetOrders"),
-      headers: <String, String>{
-        "Content-Type": "application/json; charset=utf-8",
-        "Authorization": "Bearer $bearerToken",
-      },
-      body: jsonEncode(<dynamic, dynamic>{}),
-    );
-    if (response.statusCode == 200) {
-      var value = json.decode(response.body);
-      List data = value["Data"]["entities"];
-      print("\n\n\n\n\n.....................................");
-      print(data);
-      for (var element in data) {
-        OrderModel orderModel = OrderModel.fromJson(element);
-        newList.add(orderModel);
-      }
-      orderslist = newList;
       notifyListeners();
     }
   }

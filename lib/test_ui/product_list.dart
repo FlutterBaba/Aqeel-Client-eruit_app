@@ -2,10 +2,10 @@ import 'package:eruit_app/const.dart';
 import 'package:eruit_app/extentions.dart';
 import 'package:flutter/material.dart';
 
-import '../models/order_model.dart';
+import '../models/get_orders_model.dart';
 
 class ProductRowItem extends StatelessWidget {
-  final OrderModel orderModel;
+  final GetOrdersModel orderModel;
   const ProductRowItem({
     Key? key,
     required this.orderModel,
@@ -13,6 +13,7 @@ class ProductRowItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String color = orderModel.colorHexa!;
     return SafeArea(
       top: false,
       minimum: const EdgeInsets.all(15),
@@ -78,7 +79,7 @@ class ProductRowItem extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            orderModel.name,
+                            orderModel.name.toString(),
                             style: const TextStyle(
                               overflow: TextOverflow.ellipsis,
                               fontWeight: FontWeight.w600,
@@ -89,7 +90,7 @@ class ProductRowItem extends StatelessWidget {
                         Icon(
                           Icons.circle_outlined,
                           size: 20,
-                          color: orderModel.colorHexa.toColor(),
+                          color: color.toColor(),
                         )
                       ],
                     ),

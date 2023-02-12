@@ -6,7 +6,6 @@ import '../main.dart';
 
 class SplishScreen extends StatefulWidget {
   const SplishScreen({super.key});
-
   @override
   State<SplishScreen> createState() => _SplishScreenState();
 }

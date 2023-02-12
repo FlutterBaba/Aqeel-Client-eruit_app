@@ -1,5 +1,5 @@
 import 'package:eruit_app/const.dart';
-import 'package:eruit_app/provider/auth_provider.dart';
+import 'package:eruit_app/provider/order_provider/order_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../models/get_order_status_model.dart';
@@ -12,9 +12,15 @@ class OrderDetails extends StatefulWidget {
 }
 
 class _OrderDetailsState extends State<OrderDetails> {
-  AuthProvider? authProvider;
-  // String agent = "Agent";
   String event = "Event";
+  @override
+  void initState() {
+    OrderProvider orderProvider =
+        Provider.of<OrderProvider>(context, listen: false);
+    orderProvider.getOrderStatusList();
+    super.initState();
+  }
+
   List<String> termsList = [
     'Terms',
     'תשלום 60 יום',
@@ -71,26 +77,7 @@ class _OrderDetailsState extends State<OrderDetails> {
 
   @override
   Widget build(BuildContext context) {
-    authProvider = Provider.of<AuthProvider>(context);
     return Scaffold(
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(18),
-        color: const Color(0xffF9FAFB),
-        width: double.infinity,
-        child: ElevatedButton(
-          onPressed: () {
-            // if (authProvider!.terms == 0) {
-            //   Fluttertoast.showToast(msg: "Terms is required");
-            // } else {
-            //   authProvider!.yaqoobFunction();
-            // }
-            // Navigator.of(context).push(MaterialPageRoute(
-            //   builder: (context) => const EventListPage(),
-            // ));
-          },
-          child: const Text("Events"),
-        ),
-      ),
       body: ListView(
         physics: const BouncingScrollPhysics(),
         children: [
@@ -104,73 +91,68 @@ class _OrderDetailsState extends State<OrderDetails> {
                   style: TextStyle(color: klightTextColor),
                 ),
                 const SizedBox(height: 5),
-                Row(
-                  children: const [
-                    Icon(Icons.date_range_outlined),
-                    SizedBox(width: 5),
-                    Text(
-                      "02/11/2022  11:26 AM",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
+                Consumer<OrderProvider>(
+                  builder: (context, value, child) => Row(
+                    children: [
+                      const Icon(Icons.date_range_outlined),
+                      const SizedBox(width: 5),
+                      Text(
+                        value.orderDate,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 20),
-                const Text(
-                  "Booking number",
-                  style: TextStyle(color: klightTextColor),
-                ),
-                const SizedBox(height: 5),
-                Row(
-                  children: const [
-                    Icon(Icons.date_range_outlined),
-                    SizedBox(width: 5),
-                    Text(
-                      "123456",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
+                // const Text(
+                //   "Booking number",
+                //   style: TextStyle(color: klightTextColor),
+                // ),
+                // const SizedBox(height: 5),
+                // Row(
+                //   children: const [
+                //     Icon(Icons.date_range_outlined),
+                //     SizedBox(width: 5),
+                //     Text(
+                //       "123456",
+                //       style: TextStyle(
+                //         fontWeight: FontWeight.w500,
+                //       ),
+                //     ),
+                //   ],
+                // ),
+                // const SizedBox(height: 20),
+                Consumer<OrderProvider>(
+                  builder: (context, value, child) => OverflowBar(
+                    overflowSpacing: 20,
+                    children: [
+                      // const TextField(
+                      //   decoration: InputDecoration(labelText: "Order"),
+                      // ),
+
+                      DropDownWidget(
+                        title: "",
+                        value: termsList[value.terms],
+                        items: termsList,
+                        onTap: (onTapvalue) {
+                          setState(() {
+                            value.terms = termsList.indexOf(onTapvalue!);
+                          });
+                          // print(value);
+                        },
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                ListView(
-                  shrinkWrap: true,
-                  primary: false,
-                  children: [
-                    const TextField(
-                      decoration: InputDecoration(labelText: "Order"),
-                    ),
-                    const SizedBox(height: 20),
-                    DropDownWidget(
-                      title: "",
-                      value: termsList[authProvider!.terms],
-                      items: termsList,
-                      onTap: (value) {
-                        setState(() {
-                          authProvider!.terms = termsList.indexOf(value!);
-                        });
-                        print(value);
-                      },
-                    ),
-                    const SizedBox(height: 20),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      decoration: BoxDecoration(
-                        color: Colors.transparent,
-                        border: Border.all(color: kborderColor),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton(
+
+                      DropdownButtonHideUnderline(
+                        child: DropdownButtonFormField(
                           itemHeight: 60,
                           style: const TextStyle(
                             fontSize: 17,
                           ),
-                          value: authProvider!.orderStatus,
+                          value: value.orderStatus,
                           icon: const Icon(Icons.keyboard_arrow_down),
-                          items: authProvider!.statuslist.map(
+                          items: value.statuslist.map(
                             (GetOrderStatusModel items) {
                               return DropdownMenuItem(
                                 value: items.value,
@@ -182,44 +164,42 @@ class _OrderDetailsState extends State<OrderDetails> {
                               );
                             },
                           ).toList(),
-                          onChanged: (value) {
+                          onChanged: (onchangeValue) {
                             setState(() {
-                              authProvider!.orderStatus = value!;
+                              value.orderStatus = onchangeValue!;
                             });
                           },
                           isExpanded: true,
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 20),
-                    DropDownWidget(
-                      title: "",
-                      value: agentList[authProvider!.agent],
-                      items: agentList,
-                      onTap: (value) {
-                        setState(() {
-                          authProvider!.agent = agentList.indexOf(value!);
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 20),
-                    TextField(
-                      controller: authProvider!.eventLocation,
-                      decoration:
-                          const InputDecoration(labelText: "Event Location"),
-                    ),
-                    const SizedBox(height: 20),
-                    DropDownWidget(
-                      title: "",
-                      value: eventList[authProvider!.event],
-                      items: eventList,
-                      onTap: (value) {
-                        setState(() {
-                          authProvider!.event = eventList.indexOf(value!);
-                        });
-                      },
-                    ),
-                  ],
+
+                      DropDownWidget(
+                        title: "",
+                        value: agentList[value.agent],
+                        items: agentList,
+                        onTap: (onTapvalue) {
+                          setState(() {
+                            value.agent = agentList.indexOf(onTapvalue!);
+                          });
+                        },
+                      ),
+                      TextField(
+                        controller: value.eventLocation,
+                        decoration:
+                            const InputDecoration(labelText: "Event Location"),
+                      ),
+                      DropDownWidget(
+                        title: "",
+                        value: eventList[value.event],
+                        items: eventList,
+                        onTap: (onTapvalue) {
+                          setState(() {
+                            value.event = eventList.indexOf(onTapvalue!);
+                          });
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),

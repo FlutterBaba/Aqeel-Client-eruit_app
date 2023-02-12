@@ -1,22 +1,16 @@
-import 'package:eruit_app/provider/auth_provider.dart';
+import 'package:eruit_app/provider/order_provider/order_provider.dart';
 import 'package:eruit_app/widgets/drop_down_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import 'events_Item.dart';
-import 'events_details.dart';
-
-class Events extends StatefulWidget {
-  const Events({super.key});
+class EventsPage extends StatefulWidget {
+  const EventsPage({super.key});
   @override
-  State<Events> createState() => _EventsState();
+  State<EventsPage> createState() => _EventsState();
 }
 
-class _EventsState extends State<Events> {
-  TextEditingController dateInputController = TextEditingController();
-  TimeOfDay toTime = const TimeOfDay(hour: 8, minute: 30);
-  TimeOfDay fromTime = const TimeOfDay(hour: 12, minute: 30);
+class _EventsState extends State<EventsPage> {
   TextEditingController hebdate = TextEditingController();
   TextEditingController dayEvent = TextEditingController();
 
@@ -81,9 +75,28 @@ class _EventsState extends State<Events> {
     "בופה",
   ];
 
+  // chooseTime({required BuildContext context, required selectedTime}) async {
+  //   TimeOfDay? pickedTime = await showTimePicker(
+  //       context: context,
+  //       initialTime: selectedTime,
+  //       builder: (context, child) {
+  //         return Theme(data: ThemeData.dark(), child: child!);
+  //       },
+  //       initialEntryMode: TimePickerEntryMode.input,
+  //       helpText: 'Select Departure Time',
+  //       errorInvalidText: 'Provide valid time',
+  //       hourLabelText: 'Select Hour',
+  //       minuteLabelText: 'Select Minute');
+  //   if (pickedTime != null && pickedTime != selectedTime) {
+  //     setState(() {
+  //       selectedTime = pickedTime;
+  //     });
+  //   }
+  // }
+
   @override
   Widget build(BuildContext context) {
-    AuthProvider authProvider = Provider.of<AuthProvider>(context);
+    OrderProvider orderProvider = Provider.of<OrderProvider>(context);
     return Scaffold(
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(15),
@@ -95,11 +108,17 @@ class _EventsState extends State<Events> {
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => const EventsDetails(),
-                    ));
+                    orderProvider.eventValidation();
+                    print(orderProvider.fromTime.hour);
+                    // Navigator.of(context).push(MaterialPageRoute(
+                    //   builder: (context) => const EventsDetails(),
+                    // ));
                   },
-                  child: const Text("Save"),
+                  child: orderProvider.orderloading
+                      ? const CircularProgressIndicator(
+                          color: Colors.white,
+                        )
+                      : const Text("Save"),
                 ),
               ),
               const SizedBox(width: 20),
@@ -134,16 +153,16 @@ class _EventsState extends State<Events> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  "Events",
+                  "EventsPage",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => const EventsItem(),
-                    ));
+                    // Navigator.of(context).push(MaterialPageRoute(
+                    //   builder: (context) => const EventsItem(),
+                    // ));
                   },
                   child: const Padding(
                     padding: EdgeInsets.all(12.0),
@@ -155,59 +174,60 @@ class _EventsState extends State<Events> {
             const SizedBox(height: 20),
             DropDownWidget(
               title: "",
-              value: hallList[authProvider.hall],
+              value: hallList[orderProvider.hall],
               items: hallList,
               onTap: (value) {
                 setState(() {
-                  authProvider.hall = hallList.indexOf(value!);
+                  orderProvider.hall = hallList.indexOf(value!);
                 });
               },
             ),
             const SizedBox(height: 20),
             DropDownWidget(
               title: "",
-              value: menuList[authProvider.menu],
+              value: menuList[orderProvider.menu],
               items: menuList,
               onTap: (value) {
                 setState(() {
-                  authProvider.menu = menuList.indexOf(value!);
+                  orderProvider.menu = menuList.indexOf(value!);
                 });
               },
             ),
             const SizedBox(height: 20),
             DropDownWidget(
               title: "",
-              value: serverList[authProvider.server],
+              value: serverList[orderProvider.server],
               items: serverList,
               onTap: (value) {
                 setState(() {
-                  authProvider.server = serverList.indexOf(value!);
+                  orderProvider.server = serverList.indexOf(value!);
                 });
               },
             ),
             const SizedBox(height: 20),
             TextFormField(
               decoration: const InputDecoration(
-                hintText: 'Date',
+                hintText: 'From Date',
                 suffixIcon: Icon(Icons.date_range),
               ),
-              controller: dateInputController,
+              controller: orderProvider.fromDate,
               readOnly: true,
               onTap: () async {
                 DateTime? pickedDate = await showDatePicker(
-                    context: context,
-                    initialDate: DateTime.now(),
-                    firstDate: DateTime(1950),
-                    lastDate: DateTime(2050));
+                  context: context,
+                  initialDate: DateTime.now(),
+                  firstDate: DateTime(1950),
+                  lastDate: DateTime(2050),
+                );
                 if (pickedDate != null) {
-                  dateInputController.text =
+                  orderProvider.fromDate.text =
                       DateFormat('dd MMMM yyyy').format(pickedDate);
                 }
-                await authProvider.getHedateAndDayEventByDate(
-                    date: dateInputController.text);
+                await orderProvider.getHedateAndDayEventByDate(
+                    date: orderProvider.fromDate.text);
 
-                hebdate.text = authProvider.hebdate!;
-                dayEvent.text = authProvider.dayEvent!;
+                hebdate.text = orderProvider.hebdate!;
+                dayEvent.text = orderProvider.dayEvent!;
               },
             ),
             const SizedBox(height: 20),
@@ -216,21 +236,32 @@ class _EventsState extends State<Events> {
                 Expanded(
                   child: TextFormField(
                     decoration: InputDecoration(
-                      hintText: toTime.format(context).toString(),
+                      hintText: orderProvider.fromTime == TimeOfDay.now()
+                          ? "From Time"
+                          : "${orderProvider.fromTime.hour}:${orderProvider.fromTime.minute}",
                       suffixIcon: const Icon(Icons.timer_sharp),
                     ),
                     // controller:
                     readOnly: true,
-                    onTap: () {
-                      showTimePicker(
-                        helpText: "TO TIME",
+                    onTap: () async {
+                      TimeOfDay? pickedTime = await showTimePicker(
                         context: context,
-                        initialTime: TimeOfDay.now(),
-                      ).then((value) {
+                        initialTime: orderProvider.fromTime,
+                        builder: (context, child) {
+                          return Theme(data: ThemeData.dark(), child: child!);
+                        },
+                        initialEntryMode: TimePickerEntryMode.input,
+                        helpText: 'Select Departure Time',
+                        errorInvalidText: 'Provide valid time',
+                        hourLabelText: 'Select Hour',
+                        minuteLabelText: 'Select Minute',
+                      );
+                      if (pickedTime != null &&
+                          pickedTime != orderProvider.fromTime) {
                         setState(() {
-                          toTime = value!;
+                          orderProvider.fromTime = pickedTime;
                         });
-                      });
+                      }
                     },
                   ),
                 ),
@@ -238,21 +269,32 @@ class _EventsState extends State<Events> {
                 Expanded(
                   child: TextFormField(
                     decoration: InputDecoration(
-                      hintText: fromTime.format(context).toString(),
+                      hintText: orderProvider.toTime == TimeOfDay.now()
+                          ? "To Time"
+                          : "${orderProvider.toTime.hour}:${orderProvider.toTime.minute}",
                       suffixIcon: const Icon(Icons.timer_sharp),
                     ),
                     // controller:
                     readOnly: true,
-                    onTap: () {
-                      showTimePicker(
-                        helpText: "From TIME",
+                    onTap: () async {
+                      TimeOfDay? pickedTime = await showTimePicker(
                         context: context,
-                        initialTime: TimeOfDay.now(),
-                      ).then((value) {
+                        initialTime: orderProvider.toTime,
+                        builder: (context, child) {
+                          return Theme(data: ThemeData.dark(), child: child!);
+                        },
+                        initialEntryMode: TimePickerEntryMode.input,
+                        helpText: 'Select Departure Time',
+                        errorInvalidText: 'Provide valid time',
+                        hourLabelText: 'Select Hour',
+                        minuteLabelText: 'Select Minute',
+                      );
+                      if (pickedTime != null &&
+                          pickedTime != orderProvider.toTime) {
                         setState(() {
-                          fromTime = value!;
+                          orderProvider.toTime = pickedTime;
                         });
-                      });
+                      }
                     },
                   ),
                 ),
@@ -261,13 +303,13 @@ class _EventsState extends State<Events> {
             const SizedBox(height: 20),
             TextField(
               controller: hebdate,
-              decoration: const InputDecoration(
-                labelText: 'Hebdate',
-              ),
+              readOnly: true,
+              decoration: const InputDecoration(labelText: 'Hebdate'),
             ),
             const SizedBox(height: 20),
             TextField(
               controller: dayEvent,
+              readOnly: true,
               decoration: const InputDecoration(labelText: 'Day Event'),
             ),
           ],

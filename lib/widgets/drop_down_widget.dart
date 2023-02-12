@@ -38,33 +38,25 @@ class _DropDownWidgetState extends State<DropDownWidget> {
                 ),
               ),
         Center(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            decoration: BoxDecoration(
-              color: Colors.transparent,
-              border: Border.all(color: kborderColor),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton(
-                itemHeight: 60,
-                style: const TextStyle(
-                  color: klightTextColor,
-                  fontSize: 17,
-                ),
-                value: widget.value,
-                icon: const Icon(Icons.keyboard_arrow_down),
-                items: widget.items.map(
-                  (items) {
-                    return DropdownMenuItem(
-                      value: items,
-                      child: Text(items),
-                    );
-                  },
-                ).toList(),
-                onChanged: widget.onTap,
-                isExpanded: true,
+          child: DropdownButtonHideUnderline(
+            child: DropdownButtonFormField(
+              itemHeight: 60,
+              style: const TextStyle(
+                color: klightTextColor,
+                fontSize: 17,
               ),
+              value: widget.value,
+              icon: const Icon(Icons.keyboard_arrow_down),
+              items: widget.items.map(
+                (items) {
+                  return DropdownMenuItem(
+                    value: items,
+                    child: Text(items),
+                  );
+                },
+              ).toList(),
+              onChanged: widget.onTap,
+              isExpanded: true,
             ),
           ),
         ),

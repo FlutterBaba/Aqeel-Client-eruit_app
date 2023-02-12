@@ -1,19 +1,28 @@
 import 'package:eruit_app/const.dart';
 import 'package:eruit_app/pages/order_List_page_filter_popup.dart';
-import 'package:eruit_app/provider/auth_provider.dart';
+import 'package:eruit_app/provider/order_provider/order_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../models/order_model.dart';
+import '../models/get_orders_model.dart';
 import '../test_ui/product_list.dart';
 import 'CreateOrder/create_order.dart';
+import 'order_details_page.dart';
 
-class OrderListPage extends StatelessWidget {
+class OrderListPage extends StatefulWidget {
   const OrderListPage({super.key});
   @override
+  State<OrderListPage> createState() => _OrderListPageState();
+}
+
+class _OrderListPageState extends State<OrderListPage> {
+  TextEditingController dateInputController = TextEditingController();
+
+  @override
   Widget build(BuildContext context) {
-    AuthProvider authProvider = Provider.of<AuthProvider>(context);
+    print("build");
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         elevation: 0,
@@ -60,94 +69,79 @@ class OrderListPage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 30),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 18),
-              child: OrderDropDown(),
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: () async {
+                DateTime? pickedDate = await showDatePicker(
+                  context: context,
+                  initialDate: DateTime.now(),
+                  firstDate: DateTime(1950),
+                  lastDate: DateTime(2050),
+                );
+                if (pickedDate != null) {
+                  setState(() {
+                    dateInputController.text =
+                        DateFormat('dd MMMM yyyy').format(pickedDate);
+                  });
+                }
+              },
+              child: Container(
+                margin: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(20),
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: const Color.fromRGBO(255, 255, 255, 0.4),
+                  border: Border.all(color: Colors.white),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    dateInputController.text.isEmpty
+                        ? const Text("Select")
+                        : Text(dateInputController.text),
+                    const Icon(Icons.arrow_drop_down_sharp)
+                  ],
+                ),
+              ),
             ),
             Expanded(
-              child: authProvider.orderslist.isEmpty
-                  ? const Text("No Order")
-                  : ListView.builder(
-                      padding: EdgeInsets.zero,
-                      physics: const BouncingScrollPhysics(),
-                      itemCount: authProvider.orderslist.length,
-                      itemBuilder: (context, index) {
-                        OrderModel orderModel = authProvider.orderslist[index];
-                        return CupertinoButton(
-                          padding: EdgeInsets.zero,
-                          onPressed: () {
-                            // Navigator.of(context).push(MaterialPageRoute(
-                            //   builder: (context) =>
-                            //       OrderDetailsPage(orderModel: orderModel),
-                            // ));
-                          },
-                          child: ProductRowItem(
-                            orderModel: orderModel,
-                          ),
-                        );
-                      },
-                    ),
-            )
+              child: Consumer<OrderProvider>(
+                builder: (context, value, child) => StreamBuilder(
+                  stream: value.getOrders(dateInputController).asStream(),
+                  builder:
+                      (context, AsyncSnapshot<List<GetOrdersModel>> snapshot) {
+                    if (!snapshot.hasData) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else {
+                      return ListView.builder(
+                        padding: EdgeInsets.zero,
+                        physics: const BouncingScrollPhysics(),
+                        itemCount: value.getorderlist.length,
+                        itemBuilder: (context, index) {
+                          GetOrdersModel orderModel = value.getorderlist[index];
+                          return CupertinoButton(
+                            padding: EdgeInsets.zero,
+                            onPressed: () async {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => OrderDetailsPage(
+                                    orderNumber: orderModel.order!),
+                              ));
+                            },
+                            child: ProductRowItem(
+                              orderModel: orderModel,
+                            ),
+                          );
+                        },
+                      );
+                    }
+                  },
+                ),
+              ),
+            ),
           ],
         ),
       ),
-    );
-  }
-}
-
-class OrderDropDown extends StatefulWidget {
-  const OrderDropDown({super.key});
-  @override
-  State<OrderDropDown> createState() => _OrderDropDownState();
-}
-
-class _OrderDropDownState extends State<OrderDropDown> {
-  String dropdownvalue = 'Select';
-
-  // List of items in our dropdown menu
-  var items = [
-    'Select',
-    'Item 2',
-    'Item 3',
-    'Item 4',
-    'Item 5',
-  ];
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Center(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: BoxDecoration(
-              color: const Color.fromRGBO(255, 255, 255, 0.4),
-              border: Border.all(color: Colors.white),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton(
-                value: dropdownvalue,
-                icon: const Icon(Icons.keyboard_arrow_down),
-                items: items.map(
-                  (String items) {
-                    return DropdownMenuItem(
-                      value: items,
-                      child: Text(items),
-                    );
-                  },
-                ).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    dropdownvalue = newValue!;
-                  });
-                },
-                isExpanded: true,
-              ),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

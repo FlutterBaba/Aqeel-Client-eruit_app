@@ -1,5 +1,4 @@
 class GetOrderStatusModel {
-  final String type = "Order Status";
   final String text;
   final String value;
   GetOrderStatusModel({

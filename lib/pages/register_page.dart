@@ -81,7 +81,7 @@ class RegisterPage extends StatelessWidget {
                     CupertinoButton(
                       onPressed: () {
                         Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => const LoginPage(),
+                          builder: (context) => LoginPage(),
                         ));
                       },
                       padding: EdgeInsets.zero,

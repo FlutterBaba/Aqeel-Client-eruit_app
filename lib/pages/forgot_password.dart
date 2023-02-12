@@ -71,13 +71,17 @@ class ForgotPassword extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(30),
             child: ElevatedButton(
-              child: const Text("Send"),
               onPressed: () {
                 authProvider.fatchForgetPassword(
                   userName: userName.text,
                   emailId: email.text,
                 );
               },
+              child: authProvider.isForgotLoadding
+                  ? const CircularProgressIndicator(
+                      color: Colors.white,
+                    )
+                  : const Text("Send"),
             ),
           ),
         ],

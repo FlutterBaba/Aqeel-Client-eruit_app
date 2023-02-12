@@ -2,6 +2,8 @@ import 'package:eruit_app/pages/bottom_bar.dart';
 import 'package:eruit_app/pages/login_page.dart';
 import 'package:eruit_app/pages/splash_page.dart';
 import 'package:eruit_app/provider/auth_provider.dart';
+import 'package:eruit_app/provider/login_provider.dart';
+import 'package:eruit_app/provider/order_provider/order_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -18,7 +20,8 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
-        // ChangeNotifierProvider(create: (_) => ProfileProvider()),
+        ChangeNotifierProvider(create: (_) => LoginProvider()),
+        ChangeNotifierProvider(create: (_) => OrderProvider()),
       ],
       child: MaterialApp(
         title: 'Eruit-Mobile-App',
@@ -71,6 +74,7 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ),
+        // home: const LoginPage(),
         home: const SplishScreen(),
         // home: const Yaqoob(),
         // home: YaqoobTest(),
